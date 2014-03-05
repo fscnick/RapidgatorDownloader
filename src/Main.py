@@ -1,14 +1,31 @@
 # -*- coding: utf-8 -*-
 '''
 Created on 2014/2/25
-
-    ┌gui         <─┐
-    │              │(update ui)
-main┼control thread┤
-    │              │(check status)
-    └work thread <─┘
+┌┬┐├┼┤└┴┘─│
+                          main
+                            │
+                          invoke
+                            │
+        ┌─────────────ControlThread─────────────┐
+        │              ^         │              │
+     update            │         │         check status
+        │           notify       │              │
+        V              │      notify            V
+    DialogThread ──────┘         └──────────> HTTPthread(workThread)
     
-@author: 10110045
+    
+    "notify" include "teminate" and "set url"
+    
+    the indeed download code is commented for testing conveniently.
+    
+    unfinishied job:
+                       1. Exception _tkinter.TclError: 'out of stack space (infinite loop?)' in <bound method StringVar.__del__ of <tkinter.StringVar object at 0x0216ACD0>> ignored
+                        
+                       2. dialog terminate progress
+                       
+                       3. percentage of downloading
+                        
+@author: Nick Chen (fscnick@hotmail.com)
 '''
 
 from tkinter import *
