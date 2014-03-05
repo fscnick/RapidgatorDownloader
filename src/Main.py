@@ -25,6 +25,8 @@ Created on 2014/2/25
                        
                        3. percentage of downloading
                         
+                        
+    test file url: "http://rapidgator.net/file/bf6293fc58898b2bacbd4b9b6e4bff8d/Android_Security.zip.html"
 @author: Nick Chen (fscnick@hotmail.com)
 '''
 
@@ -39,13 +41,7 @@ if __name__ == '__main__':
     controlThread=ControlThread.ControlThread()
     controlThread.start()
     
-    
-    '''httpThread=HTTPthread.HTTPthread()
-    dialogThread=DialogThread.DialogThread(httpThread)
-    controlThread=ControlThread.ControlThread(dialogThread, httpThread)
-    controlThread.start()'''
-    #dialog.retrieveURL()
-    
+    ''' testing procedure '''
     '''httpThread = HTTPthread.HTTPthread()
     httpThread.setURL("http://rapidgator.net/file/bf6293fc58898b2bacbd4b9b6e4bff8d/Android_Security.zip.html")
     httpThread.start()
