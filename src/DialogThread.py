@@ -26,10 +26,21 @@ class DialogThread(threading.Thread):
         self.looptime=0.05      # this loop time must less than loop time in ControlThread for better responsivity
         
     def updateInfo(self, info):
+        if self.dialog == None:
+            self.notifyTerminate()
+            return 0
+        
+        if self.dialog.frame == None:
+            self.notifyTerminate()
+            return 0
+        
+        
         if self.dialogType == 2:
             self.dialog.frame.updateInfo(info)
         else:
             print("Not a valid dialog.")
+            
+        return 1
         
     def setDialogChange(self, dialogType):
         if dialogType != self.dialogType:
@@ -38,6 +49,10 @@ class DialogThread(threading.Thread):
             print("dialogType set success!")
         else:
             print("dialogType is the current type.")
+            
+    def notifyTerminate(self):
+        if self.controlThread != None:
+            self.controlThread.setStop()
             
     def run(self):
         print("DialogThread start!!!")
@@ -62,12 +77,12 @@ class DialogThread(threading.Thread):
                     self.dialog.closeDialog()
                     self.dialog = None
                     
-                self.dialog=InfoDialog()
+                self.dialog=InfoDialog(self.controlThread)
                 self.dialogNeedChange=False
                 self.dialog.start()
                 continue
             
-            if self.dialogNeedChange == True and self.dialogType == self.TERMINATE:
+            if self.dialogType == self.TERMINATE:
                 print("DialogThread terminate.")
                 self.dialogNeedChange=False
                 if self.dialog != None :
@@ -81,10 +96,22 @@ class DialogThread(threading.Thread):
 class UrlDialog(threading.Thread):
     def __init__(self, thread=None):
         threading.Thread.__init__(self)
-        self.thread=thread
+        self.controlThread=thread
         self.dialogRoot=Tk()
         
-        self.frame=GetUrlFrame(self.dialogRoot, self.thread)
+        if self.dialogRoot == None:
+            pass
+        
+        self.dialogRoot.protocol('WM_DELETE_WINDOW', self.closeBtn)
+        
+        self.frame=GetUrlFrame(self.dialogRoot, self.controlThread)
+        
+        if self.frame == None:
+            pass
+        
+    def closeBtn(self):
+        self.controlThread.setStop()
+        
         
     def closeDialog(self):
         self.dialogRoot.quit()
@@ -113,16 +140,26 @@ class GetUrlFrame(Frame):
         
     def createWidgets(self):
         self.inputText = Label(self)
-        self.inputText["text"] = "URL:"
-        self.inputText.grid(row=0, column=0)
+        if self.inputText != None:
+            self.inputText["text"] = "URL:"
+            self.inputText.grid(row=0, column=0)
+        else:
+            pass
         
         self.inputField = Entry(self)
-        self.inputField["width"] = 50
-        self.inputField.grid(row=0, column=1, columnspan=6)
+        if self.inputField != None:
+            self.inputField["width"] = 50
+            self.inputField.grid(row=0, column=1, columnspan=6)
+        else:
+            pass
+        
         
         self.submitBtn = Button(self, command=self.clickSubmitBtn)
-        self.submitBtn["text"] = "Submit"
-        self.submitBtn.grid(row=0, column=7)
+        if self.submitBtn != None:
+            self.submitBtn["text"] = "Submit"
+            self.submitBtn.grid(row=0, column=7)
+        else:
+            pass
         
 
     def clickSubmitBtn(self):
@@ -145,10 +182,23 @@ class GetUrlFrame(Frame):
     
     
 class InfoDialog(threading.Thread):
-    def __init__(self):
-        threading.Thread.__init__(self) 
+    def __init__(self, thread=None):
+        threading.Thread.__init__(self)
+        self.controlThread=thread
+         
         self.dialogRoot=Tk()
-        self.frame=InfoFrame(self.dialogRoot)
+        if self.dialogRoot == None:
+            pass
+        
+        self.dialogRoot.protocol('WM_DELETE_WINDOW', self.closeBtn)
+        
+        self.frame=InfoFrame(self.dialogRoot, self.controlThread)
+        if self.frame == None :
+            pass
+        
+        
+    def closeBtn(self):
+        self.controlThread.setStop()
         
     def closeDialog(self):
         self.dialogRoot.quit()
@@ -161,8 +211,9 @@ class InfoDialog(threading.Thread):
         self.dialogRoot.mainloop()
     
 class InfoFrame(Frame):
-    def __init__(self,master=None):
+    def __init__(self,master=None, thread=None):
         Frame.__init__(self, master)
+        self.thread=thread
         
         self.stringVar=StringVar()
         
@@ -171,16 +222,25 @@ class InfoFrame(Frame):
         
     def createWidgets(self):
         self.inputText=Label(self)
-        #self.inputText['text']=self.workThread.getStatusInfo()
-        self.inputText['textvariable']=self.stringVar
-        self.inputText["width"] = 50
-        self.inputText.grid(row=0, column=0, columnspan=6)
+        if self.inputText != None:
+            self.inputText['textvariable']=self.stringVar
+            self.inputText["width"] = 50
+            self.inputText.grid(row=0, column=0, columnspan=6)
+        else:
+            pass
         
         
-        self.cancelBtn = Button(self)   # need to implement
-        self.cancelBtn["text"] = "Cancel"
-        self.cancelBtn.grid(row=0, column=6)
+        self.cancelBtn = Button(self, command=self.clickCancelBtn)   # need to implement
+        if self.cancelBtn !=None:
+            self.cancelBtn["text"] = "Cancel"
+            self.cancelBtn.grid(row=0, column=6)
+        else:
+            pass
         
+    def clickCancelBtn(self):
+        print("close the InfoDialog")
+        self.thread.setStop()
+            
     def updateInfo(self, str):
         self.stringVar.set(str)
 

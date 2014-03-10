@@ -4,15 +4,16 @@ Created on 2014/2/25
 ┌┬┐├┼┤└┴┘─│
                           main
                             │
-                          invoke
+                        (invoke)
                             │
         ┌─────────────ControlThread─────────────┐
-        │              ^         │              │
-     update            │         │         check status
-        │           notify       │              │
-        V              │      notify            V
-    DialogThread ──────┘         └──────────> HTTPthread(workThread)
-    
+        │              ^    │    │              │
+     update            │    │    │         check status
+        │           notify  │    │              │
+        V              │    │ notify            V
+    DialogThread ──────┘    │    └──────────> HTTPthread(workThread)
+           ^                │                   ^
+           └────────signal terminate────────────┘    
     
     "notify" include "teminate" and "set url"
     

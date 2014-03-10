@@ -69,6 +69,8 @@ class HTTPthread(threading.Thread):
         '''
         super().__init__()
         
+        self.stopFlag=False
+        
         self.baseUrl="http://rapidgator.net"
         self.cookies=http.cookiejar.CookieJar()
         self.fileUrl=None
@@ -116,6 +118,9 @@ class HTTPthread(threading.Thread):
         
     def goToNextOP(self):
         self.setOP(-self.getOP()+1)
+        
+    def setStop(self):
+        self.stopFlag=True
         
     def run(self):
         '''if self.op == 0:
@@ -169,6 +174,10 @@ class HTTPthread(threading.Thread):
             ''' start counting down   ( at startTimer() )'''
             print("33333")
             for left_time in range(int(self.javascript_var_parser.get_secs())+1, 0, -1):
+                if self.stopFlag == True:
+                    print("User terminate!")
+                    return
+                
                 self.setStatusInfo("Remaining: "+str(left_time)+" sec.")
                 print("Remaining: ", left_time)
                 time.sleep(1)

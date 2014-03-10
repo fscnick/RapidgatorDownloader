@@ -34,6 +34,8 @@ class ControlThread(threading.Thread):
         else:
             self.workThread=workThread
         
+        self.stopFlag=False
+        
         self.loopTime=0.2
         
     def restartWorkThread(self):
@@ -49,6 +51,9 @@ class ControlThread(threading.Thread):
         
     def getFileURL(self):
         return self.fileUrl
+    
+    def setStop(self):
+        self.stopFlag=True
         
     def run(self):
         ''' start dialog and httpThread '''
@@ -61,6 +66,13 @@ class ControlThread(threading.Thread):
         
         while (True):
             time.sleep(self.loopTime)
+            
+            if self.stopFlag == True:
+                ''' recieve a stop signal'''
+                self.dialogThread.setDialogChange(self.dialogThread.TERMINATE)
+                self.workThread.setStop()
+                break
+            
             op=self.workThread.getOP()
             
             if op == 0 and self.fileUrl != None:
@@ -99,25 +111,39 @@ class ControlThread(threading.Thread):
                         self.workThread.goToNextOP()
                         print("goto OP 3")
                         self.restartWorkThread()
+                        continue
+                    
                     elif op == -3:
                         self.workThread.goToNextOP()
                         print("goto OP 4")
                         self.restartWorkThread()
+                        continue
+                    
                     elif op == -4:
                         self.workThread.goToNextOP()
                         print("goto OP 5")
                         self.restartWorkThread()
+                        continue
+                    
                     elif op == -5:
                         self.workThread.goToNextOP()
                         print("goto OP 6")
                         self.restartWorkThread()
+                        continue
+                    
                     elif op == -6:
                         print("download finish...")
-                        self.dialogThread.setDialogChange(self.dialogThread.TERMINATE)
-                        break
+                        self.dialogThread.updateInfo(self.workThread.getStatusInfo())
+                        #time.sleep(3)
+                        #self.dialogThread.setDialogChange(self.dialogThread.TERMINATE)
+                        #break
+                        continue
                         
             else:
                 '''update current status'''
-                self.dialogThread.updateInfo(self.workThread.getStatusInfo())
+                rr=self.dialogThread.updateInfo(self.workThread.getStatusInfo())
+                if rr == 0:
+                    print("control set stop")
+                    self.setStop()
                         
             
