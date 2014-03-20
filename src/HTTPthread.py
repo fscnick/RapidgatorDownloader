@@ -82,6 +82,10 @@ class HTTPthread(threading.Thread):
         self.op=0
         self.statusInfo="Wait to Start"
         
+        ''' constant '''
+        self.FILE_NAME="aaa.zip"
+        self.CHUNK_SIZE=256
+        
     def setHttpStatus(self, status):
         self.cookies=status.getCookies()
         self.fileUrl=status.getFileUrl()
@@ -121,6 +125,9 @@ class HTTPthread(threading.Thread):
         
     def setStop(self):
         self.stopFlag=True
+        
+    def needStop(self):
+        return self.stopFlag
         
     def run(self):
         '''if self.op == 0:
@@ -174,7 +181,7 @@ class HTTPthread(threading.Thread):
             ''' start counting down   ( at startTimer() )'''
             print("33333")
             for left_time in range(int(self.javascript_var_parser.get_secs())+1, 0, -1):
-                if self.stopFlag == True:
+                if self.needStop() == True:
                     print("User terminate!")
                     return
                 
@@ -236,8 +243,17 @@ class HTTPthread(threading.Thread):
             # Not really download on testing
             #captcha_page_response=HttpUtility.sendHttpRequest(self.download_url, {'Referer': self.fileUrl, 'Connection': "keep-alive"}, None, self.cookies)
             #OtherUtility.write_file("aaa.zip", captcha_page_response.read())
+            self.setStatusInfo("Start to downloading...")
+            download_response=HttpUtility.sendHttpRequest(self.download_url, {'Referer': self.fileUrl ,'Connection': "keep-alive"}, None, self.cookies)
+            write_result=OtherUtility.write_download_file(download_response, self.FILE_NAME, self.CHUNK_SIZE, self.setStatusInfo, self.needStop)
+            
+            if write_result == 1:
+                self.setCurrentWorkDone()
+                self.setStatusInfo("DownLoad Fail!!! the downloaded is "+self.FILE_NAME+".tmp")
+                return
+            
             self.setCurrentWorkDone()
-            self.setStatusInfo("DownLoad success!!! save to file aaa.zip")
+            self.setStatusInfo("DownLoad success!!! save to file "+self.FILE_NAME)
             print("66666done")
             return
             

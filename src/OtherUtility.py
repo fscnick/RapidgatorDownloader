@@ -3,9 +3,12 @@ Created on 2013/12/20
 
 @author: 10110045
 '''
-import time
 from tkinter import Tk, PhotoImage, Frame, Label, Entry, Button
 from tkinter.constants import LEFT
+import HttpUtility
+import array
+import os
+import time
 
 def write_file(file_name, data):
     file=open(file_name,"wb")
@@ -16,7 +19,47 @@ def write_file(file_name, data):
     finally:
         file.close()
         
-
+def write_download_file(httpResponse, fileName, chunk_size=256 , setStatusInfo = None, needStop = None):
+    '''write http download file progress'''
+    if os.path.isfile(fileName+".tmp"):
+        print("Erasing the old temp file...")
+        os.remove(fileName+".tmp")
+        
+    tmpFile=open(fileName+".tmp", "ab+")
+    
+    totalFileSize=int(httpResponse.info().get_all('Content-Length')[0])
+    currentDownloaded=0
+    
+    while currentDownloaded < totalFileSize:
+        if needStop != None and needStop() == True:
+            print("Manually stop at downloading file.")
+            break
+        
+        chunk=httpResponse.read(int(chunk_size))
+        currentDownloaded+=len(chunk)
+        
+        # write to file per chunk
+        tmpFile.write(chunk)
+        
+        downloadedPercent=round(100*float(currentDownloaded)/totalFileSize)
+        
+        print("current downloading:   "+str(downloadedPercent)+" %")
+        if setStatusInfo != None:
+            setStatusInfo("current downloading:   "+str(downloadedPercent)+" %")
+    
+    tmpFile.close()
+            
+    if currentDownloaded != totalFileSize:
+        print("The download file lenth didn't meets the expect.")
+        return 1
+    
+    if os.path.isfile(fileName):
+        print("Erasing the old file with same name...")
+        os.remove(fileName)
+    
+    os.rename(fileName+".tmp",fileName)
+    return 0
+    
 def count_down_timer(secs):
     for left_time in range(secs+1, 0, -1):
             print("Remaining: ", left_time)
@@ -70,4 +113,9 @@ class captcha_dialog():
         frame.pack()
         dialogRoot.mainloop()
 if __name__ == '__main__':
-    pass
+    file_name="Public Relations Strategy.pdf"
+    url="http://dl.dropboxusercontent.com/u/48186266/Public%20Relations%20Strategy.pdf"
+    
+    response=HttpUtility.sendHttpRequest(url, {'Connection': "keep-alive"}, None, None)
+    
+    write_download_file(response, file_name)

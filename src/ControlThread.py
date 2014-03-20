@@ -94,7 +94,6 @@ class ControlThread(threading.Thread):
                     self.dialogThread.setDialogChange(self.dialogThread.INFO_DIALOG)
                     time.sleep(self.loopTime)
                     self.dialogThread.updateInfo(info)
-                    break
                 
                 else:
                     ''' continue to next job state'''
@@ -134,9 +133,6 @@ class ControlThread(threading.Thread):
                     elif op == -6:
                         print("download finish...")
                         self.dialogThread.updateInfo(self.workThread.getStatusInfo())
-                        #time.sleep(3)
-                        #self.dialogThread.setDialogChange(self.dialogThread.TERMINATE)
-                        #break
                         continue
                         
             else:

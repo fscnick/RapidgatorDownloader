@@ -54,9 +54,11 @@ EXTRA ATTRIBUTES AND METHODS
 
 """
 
-import urllib.request, urllib.error, urllib.parse
 import http.client
 import socket
+import urllib.request
+import urllib.error
+import urllib.parse
 
 #STRING_VERSION = '.'.join(map(str, VERSION))
 DEBUG = 0
@@ -228,7 +230,8 @@ class HTTPResponse(http.client.HTTPResponse):
                 return s
 
         s = self._rbuf + self._raw_read(amt)
-        self._rbuf = ''
+        
+        self._rbuf = b''
         return s
 
     def readline(self, limit=-1):

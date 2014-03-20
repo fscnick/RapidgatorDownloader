@@ -22,9 +22,11 @@ Created on 2014/2/25
     unfinishied job:
                        1. Exception _tkinter.TclError: 'out of stack space (infinite loop?)' in <bound method StringVar.__del__ of <tkinter.StringVar object at 0x0216ACD0>> ignored
                         
-                       2. dialog terminate progress
+                       2. dialog terminate progress(done)
                        
-                       3. percentage of downloading
+                       3. percentage of downloading(done)
+                       
+                       4. asking save file dialog
                         
                         
     test file url: "http://rapidgator.net/file/bf6293fc58898b2bacbd4b9b6e4bff8d/Android_Security.zip.html"

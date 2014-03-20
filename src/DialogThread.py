@@ -92,6 +92,7 @@ class DialogThread(threading.Thread):
                 break
             
             time.sleep(self.looptime)
+
             
 class UrlDialog(threading.Thread):
     def __init__(self, thread=None):
@@ -213,7 +214,7 @@ class InfoDialog(threading.Thread):
 class InfoFrame(Frame):
     def __init__(self,master=None, thread=None):
         Frame.__init__(self, master)
-        self.thread=thread
+        self.controlThread=thread
         
         self.stringVar=StringVar()
         
@@ -239,7 +240,7 @@ class InfoFrame(Frame):
         
     def clickCancelBtn(self):
         print("close the InfoDialog")
-        self.thread.setStop()
+        self.controlThread.setStop()
             
     def updateInfo(self, str):
         self.stringVar.set(str)
